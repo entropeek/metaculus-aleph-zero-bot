@@ -1,4 +1,4 @@
-"""AlephBot: template bot + multi-model median, free market anchor and AI signature."""
+"""AlephBot: template bot + multi-model ensemble, extra research, calibration and AI signature."""
 import itertools
 
 from forecasting_tools import GeneralLlm, MetaculusQuestion
@@ -19,6 +19,14 @@ def _llm(model: str) -> GeneralLlm:
     )
 
 
+# Prepended to every research text, so all question types (binary, numeric, MC) see it.
+OPEN_QUESTION_GUARD = (
+    "IMPORTANT: this question is still OPEN. Assume the resolving event has NOT happened yet "
+    "unless a dated source below explicitly confirms it. Check units, thresholds and dates "
+    "against the resolution criteria; check the date of every figure quoted.\n\n"
+)
+
+
 class AlephBot(CalibrationMixin, BinaryPromptMixin, FallTemplateBot2026):
     """Ensemble rotation, extra research, calibrated binary aggregation, AI signature."""
 
@@ -35,7 +43,7 @@ class AlephBot(CalibrationMixin, BinaryPromptMixin, FallTemplateBot2026):
     async def run_research(self, question: MetaculusQuestion) -> str:
         """Template research (AskNews) + resolution source pages + market lookup."""
         criteria = f"{question.resolution_criteria or ''} {question.fine_print or ''}"
-        research = await super().run_research(question)
+        research = OPEN_QUESTION_GUARD + await super().run_research(question)
         research += "\n\n" + await source_context(criteria)
         # Market lookup is optional and never blocks a forecast.
         if config.USE_MARKETS:
@@ -52,10 +60,10 @@ class AlephBot(CalibrationMixin, BinaryPromptMixin, FallTemplateBot2026):
 
 
 def build_bot(publish: bool) -> AlephBot:
-    """Creates the bot: one forecast per ensemble model, cheap parser, free research."""
+    """Creates the bot: SAMPLES_PER_MODEL forecasts per ensemble model, cheap parser, free research."""
     return AlephBot(
         research_reports_per_question=1,
-        predictions_per_research_report=len(config.MODELS),
+        predictions_per_research_report=len(config.MODELS) * config.SAMPLES_PER_MODEL,
         use_research_summary_to_forecast=False,
         publish_reports_to_metaculus=publish,
         folder_to_save_reports_to=None,

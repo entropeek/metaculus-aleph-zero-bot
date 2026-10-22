@@ -1,16 +1,20 @@
 """Aleph Zero bot settings, all overridable through environment variables."""
 import os
 
-# Forecasting models, one forecast each; the median is published (comma-separated litellm names).
+# Forecasting models (2-3 families), cycled across forecasts (comma-separated litellm names).
 MODELS = os.getenv(
     "ALEPH_MODELS",
-    # ~$0.09/question at 2026-10-22 OpenRouter prices; Google avoided (shared 150 rpm limit).
+    # ~$0.09/question per sample at 2026-10-22 OpenRouter prices; Google avoided (shared 150 rpm limit).
     "openrouter/anthropic/claude-sonnet-5.5,openrouter/openai/gpt-6.1-sol,openrouter/deepseek/deepseek-v4-pro",
 ).split(",")
 # Reasoning effort for the ensemble (low/medium/high); "high" ~doubles the cost per question.
 REASONING_EFFORT = os.getenv("ALEPH_REASONING", "medium")
-# Binary calibration: log-odds multiplier (1 = none; literature 1.16-3.9) and probability floor/ceiling.
-EXTREMIZE = float(os.getenv("ALEPH_EXTREMIZE", "1.2"))
+# Forecasts per model and question (AIA: big gains from 1 to 5 samples total); 2 ~ $0.18/question.
+SAMPLES_PER_MODEL = int(os.getenv("ALEPH_SAMPLES", "2"))
+# Binary calibration: log-odds slope k (1 = none). 1.1 until fitted on resolved questions:
+# over-extremizing costs more than under-extremizing (report "Méthode pour gagner FutureEval").
+EXTREMIZE = float(os.getenv("ALEPH_EXTREMIZE", "1.1"))
+# Probability floor/ceiling, applied after extremizing.
 CAP = float(os.getenv("ALEPH_CAP", "0.02"))
 # Cheap model that extracts the number from each model's reasoning.
 PARSER = os.getenv("ALEPH_PARSER", "openrouter/openai/gpt-6-luna")

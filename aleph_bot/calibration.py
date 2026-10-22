@@ -1,15 +1,20 @@
 """Binary aggregation: mean of log-odds, mild extremizing, then capping (LLMs hedge toward 50%)."""
+import logging
 import math
 
 from forecasting_tools import BinaryQuestion
 
 from aleph_bot import config
 
+logger = logging.getLogger(__name__)
+
 
 def aggregate_binary(predictions: list[float]) -> float:
     """Logit-mean of the ensemble, pushed away from 50% by EXTREMIZE, clipped to [CAP, 1-CAP]."""
     clipped = [min(max(p, 0.001), 0.999) for p in predictions]
     mean_logit = sum(math.log(p / (1 - p)) for p in clipped) / len(clipped)
+    # Raw inputs and logit BEFORE extremizing: needed later to fit k on resolved questions.
+    logger.info("aleph_calibration raw=%s mean_logit=%.4f", [round(p, 4) for p in predictions], mean_logit)
     probability = 1 / (1 + math.exp(-config.EXTREMIZE * mean_logit))
     return min(max(probability, config.CAP), 1 - config.CAP)
 

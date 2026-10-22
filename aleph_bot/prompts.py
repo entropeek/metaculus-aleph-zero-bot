@@ -23,9 +23,11 @@ def binary_prompt(question: BinaryQuestion, research: str, disclaimer: str) -> s
         Work through these steps briefly:
         (a) Time left until resolution, and the status quo outcome if nothing changes.
         (b) Outside view: a reference class and its base rate (how often such events happen in such a window).
+            Prior for this kind of question: only about one third of Metaculus binary questions resolve Yes.
         (c) Inside view: specific evidence that moves you away from the base rate, and by how much.
         (d) A scenario for Yes and a scenario for No.
-        (e) Check the exact wording of the criteria: what precisely must happen, by when, per which source.
+        (e) Check the exact wording of the criteria: what precisely must happen, by when, per which source,
+            in which units. Has it already happened? Only if a dated source confirms it.
         (f) Related market prices, if they truly match this question, are a strong signal; otherwise ignore them.
         Be decisive: avoid 50% unless the evidence is truly balanced; avoid extremes unless nearly certain.
         {disclaimer}
