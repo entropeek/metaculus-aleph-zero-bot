@@ -42,8 +42,8 @@ class ResearchMixin:
             markets = await market_search(question.question_text)
             research += "\n\n" + render(markets)
             liquid = [m for m in markets if m["liquid"]]
-            # Anchors are only used for plain binary questions.
-            if isinstance(question, BinaryQuestion):
+            # Anchors are only used for plain binary questions with a unique URL key.
+            if isinstance(question, BinaryQuestion) and question.page_url:
                 anchor = await judge(self.get_llm("parser", "llm"), question, liquid)
                 self.anchors[question.page_url] = anchor
         return research
