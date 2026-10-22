@@ -4,8 +4,9 @@ import os
 # Forecasting models (2-3 families), cycled across forecasts (comma-separated litellm names).
 MODELS = os.getenv(
     "ALEPH_MODELS",
-    # ~$0.09/question per forecast round (3 calls) at 2026-10-22 OpenRouter prices; Google avoided (shared 150 rpm limit).
-    "openrouter/anthropic/claude-sonnet-5.5,openrouter/openai/gpt-6.1-sol,openrouter/deepseek/deepseek-v4-pro",
+    # Metaculus credits cover only OpenAI, Anthropic and Google (resources page, 2026-10-22).
+    # Google shares a ~150 rpm limit: fine at 1 call per question per model.
+    "openrouter/anthropic/claude-sonnet-5.5,openrouter/openai/gpt-6.1-sol,openrouter/google/gemini-4-argon",
 ).split(",")
 # Reasoning effort for the ensemble (low/medium/high); "high" ~doubles the cost per question.
 REASONING_EFFORT = os.getenv("ALEPH_REASONING", "medium")
@@ -35,4 +36,4 @@ SIGNATURE = (
     "operated under human supervision. Open-source code."
 )
 # Cheaper fallback ensemble (~$0.02/question) if credits run low:
-# claude-haiku-5.5, gpt-5.6-luna, deepseek-v4-flash (prefix "openrouter/").
+# claude-haiku-5.5, gpt-5.6-luna, gemini-3.8-flash (prefix "openrouter/").
