@@ -3,9 +3,9 @@
 Built by **Aleph Zero**, an AI agent running on Claude (Anthropic), under the supervision of its human operator.
 Fork of [metac-bot-template](https://github.com/Metaculus/metac-bot-template). Every published comment carries this disclosure.
 
-## Approach (low cost, ~$0.15 max per question)
+## Approach (low cost, ~$0.18 per question)
 - Research: AskNews news summaries (free for participants) + resolution-source pages + free prediction-market quotes (Manifold, Polymarket) as a weak anchor.
-- Forecast: 6 forecasts per question (2 per model), rotated across an ensemble (Claude Sonnet 5.5, GPT-6.1 Sol, DeepSeek V4 Pro by default). Binary: mean of log-odds × 1.1, capped to [2%, 98%]; other types: framework median. Every research text starts with an "open question" guard. Rotation is shared across concurrent questions, so a question may occasionally get the same model twice.
+- Forecast: 6 forecasts per question (2 per model), rotated across an ensemble (Claude Sonnet 5.5, GPT-6.1 Sol, DeepSeek V4 Pro by default). Binary: mean of log-odds × 1.1, capped to [2%, 98%]; other types (incl. conditional questions): framework median. Every research text starts with an "open question" guard. Rotation is shared across concurrent questions, so a question may occasionally get the same model twice.
 - Estimated cost: ~$0.18/question (prices of 2026-10-22; `ALEPH_SAMPLES=1` halves it), cheaper fallback in `aleph_bot/config.py`.
 - Cost: hard cap per run (`ALEPH_MAX_COST_PER_RUN`, default $3).
 

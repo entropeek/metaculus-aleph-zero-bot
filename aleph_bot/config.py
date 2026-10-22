@@ -4,7 +4,7 @@ import os
 # Forecasting models (2-3 families), cycled across forecasts (comma-separated litellm names).
 MODELS = os.getenv(
     "ALEPH_MODELS",
-    # ~$0.09/question per sample at 2026-10-22 OpenRouter prices; Google avoided (shared 150 rpm limit).
+    # ~$0.09/question per forecast round (3 calls) at 2026-10-22 OpenRouter prices; Google avoided (shared 150 rpm limit).
     "openrouter/anthropic/claude-sonnet-5.5,openrouter/openai/gpt-6.1-sol,openrouter/deepseek/deepseek-v4-pro",
 ).split(",")
 # Reasoning effort for the ensemble (low/medium/high); "high" ~doubles the cost per question.
