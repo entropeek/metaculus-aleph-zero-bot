@@ -1,13 +1,12 @@
 """AlephBot: template bot + multi-model ensemble, extra research, calibration and AI signature."""
 import itertools
 
-from forecasting_tools import GeneralLlm, MetaculusQuestion
+from forecasting_tools import GeneralLlm
 
 from aleph_bot import config
 from aleph_bot.calibration import CalibrationMixin
-from aleph_bot.markets import market_context
 from aleph_bot.prompts import BinaryPromptMixin
-from aleph_bot.sources import source_context
+from aleph_bot.research import ResearchMixin
 from main import FallTemplateBot2026
 
 
@@ -19,15 +18,7 @@ def _llm(model: str) -> GeneralLlm:
     )
 
 
-# Prepended to every research text, so all question types (binary, numeric, MC) see it.
-OPEN_QUESTION_GUARD = (
-    "IMPORTANT: this question is still OPEN. Assume the resolving event has NOT happened yet "
-    "unless a dated source below explicitly confirms it. Check units, thresholds and dates "
-    "against the resolution criteria; check the date of every figure quoted.\n\n"
-)
-
-
-class AlephBot(CalibrationMixin, BinaryPromptMixin, FallTemplateBot2026):
+class AlephBot(ResearchMixin, CalibrationMixin, BinaryPromptMixin, FallTemplateBot2026):
     """Ensemble rotation, extra research, calibrated binary aggregation, AI signature."""
 
     _model_cycle = itertools.cycle(config.MODELS)
@@ -39,16 +30,6 @@ class AlephBot(CalibrationMixin, BinaryPromptMixin, FallTemplateBot2026):
         if purpose == "default" and guarantee_type == "llm":
             llm = _llm(next(self._model_cycle))
         return llm
-
-    async def run_research(self, question: MetaculusQuestion) -> str:
-        """Template research (AskNews) + resolution source pages + market lookup."""
-        criteria = f"{question.resolution_criteria or ''} {question.fine_print or ''}"
-        research = OPEN_QUESTION_GUARD + await super().run_research(question)
-        research += "\n\n" + await source_context(criteria)
-        # Market lookup is optional and never blocks a forecast.
-        if config.USE_MARKETS:
-            research += "\n\n" + await market_context(question.question_text)
-        return research
 
     def make_llm_dict(self) -> dict:
         """Lists the whole ensemble in the comment metadata, not only the first model."""
