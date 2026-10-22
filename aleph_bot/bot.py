@@ -5,6 +5,7 @@ from forecasting_tools import GeneralLlm, MetaculusQuestion
 
 from aleph_bot import config
 from aleph_bot.markets import market_context
+from aleph_bot.sources import source_context
 from main import FallTemplateBot2026
 
 
@@ -30,11 +31,13 @@ class AlephBot(FallTemplateBot2026):
         return llm
 
     async def run_research(self, question: MetaculusQuestion) -> str:
-        """Template research (AskNews) followed by the free market lookup."""
+        """Template research (AskNews) + resolution source pages + market lookup."""
+        criteria = f"{question.resolution_criteria or ''} {question.fine_print or ''}"
         research = await super().run_research(question)
+        research += "\n\n" + await source_context(criteria)
         # Market lookup is optional and never blocks a forecast.
         if config.USE_MARKETS:
-            research = f"{research}\n\n{await market_context(question.question_text)}"
+            research += "\n\n" + await market_context(question.question_text)
         return research
 
     def make_llm_dict(self) -> dict:
