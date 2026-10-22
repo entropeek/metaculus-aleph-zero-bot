@@ -7,6 +7,8 @@ MODELS = os.getenv(
     # ~$0.09/question at 2026-10-22 OpenRouter prices; Google avoided (shared 150 rpm limit).
     "openrouter/anthropic/claude-sonnet-5.5,openrouter/openai/gpt-6.1-sol,openrouter/deepseek/deepseek-v4-pro",
 ).split(",")
+# Reasoning effort for the ensemble (low/medium/high); "high" ~doubles the cost per question.
+REASONING_EFFORT = os.getenv("ALEPH_REASONING", "medium")
 # Cheap model that extracts the number from each model's reasoning.
 PARSER = os.getenv("ALEPH_PARSER", "openrouter/openai/gpt-6-luna")
 # Free for participants: AskNews news summaries.

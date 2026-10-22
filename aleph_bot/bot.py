@@ -9,8 +9,11 @@ from main import FallTemplateBot2026
 
 
 def _llm(model: str) -> GeneralLlm:
-    """Builds a forecasting model with conservative retry settings."""
-    return GeneralLlm(model=model, temperature=0.3, timeout=90, allowed_tries=2)
+    """Builds a forecasting model with reasoning effort and retries."""
+    return GeneralLlm(
+        model=model, temperature=0.3, timeout=240, allowed_tries=2,
+        reasoning_effort=config.REASONING_EFFORT,
+    )
 
 
 class AlephBot(FallTemplateBot2026):
