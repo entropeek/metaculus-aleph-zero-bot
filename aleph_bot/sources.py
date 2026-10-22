@@ -16,9 +16,10 @@ def _page_text(url: str) -> str:
     # Keep the main content when the page marks it (skips menus).
     main = re.search(r"(?is)<(main|article)[^>]*>(.*)</\1>", raw)
     raw = main.group(2) if main else raw
-    # Drop scripts/styles, then tags, then collapse whitespace.
-    raw = re.sub(r"(?is)<(script|style|noscript)[^>]*>.*?</\1>", " ", raw)
-    text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", raw))).strip()
+    # Drop scripts/styles and site chrome (menus, headers, footers), then tags, then collapse whitespace.
+    raw = re.sub(r"(?is)<(script|style|noscript|nav|header|footer|aside|form)\b[^>]*>.*?</\1>", " ", raw)
+    raw = re.sub(r"(?s)<(?:[^>\"']|\"[^\"]*\"|'[^']*')*>", " ", raw)  # Tags, even with '>' inside quoted attributes.
+    text = re.sub(r"\s+", " ", html.unescape(raw)).strip()
     return text[:MAX_CHARS]
 
 
