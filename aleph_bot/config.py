@@ -14,7 +14,7 @@ REASONING_EFFORT = os.getenv("ALEPH_REASONING", "medium")
 # raise to 2 (~$0.18/question) only if more credits are granted.
 SAMPLES_PER_MODEL = int(os.getenv("ALEPH_SAMPLES", "1"))
 # Binary calibration: log-odds slope k (1 = none). 1.1 until fitted on resolved questions:
-# over-extremizing costs more than under-extremizing (report "Méthode pour gagner FutureEval").
+# over-extremizing costs more than under-extremizing.
 EXTREMIZE = float(os.getenv("ALEPH_EXTREMIZE", "1.1"))
 # Probability floor/ceiling, applied after extremizing.
 CAP = float(os.getenv("ALEPH_CAP", "0.02"))
