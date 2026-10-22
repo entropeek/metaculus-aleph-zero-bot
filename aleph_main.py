@@ -2,6 +2,7 @@
 import argparse
 import asyncio
 import logging
+import time
 
 from forecasting_tools import MetaculusClient, MonetaryCostManager
 
@@ -22,22 +23,38 @@ def targets(mode: str) -> list:
     )
 
 
+def run_once(bot, mode: str) -> None:
+    """Forecasts every target once; stops spending once the per-run cap is reached."""
+    reports = []
+    with MonetaryCostManager(config.MAX_COST_PER_RUN) as cost:
+        # One tournament after the other, errors are kept in the reports.
+        for target in targets(mode):
+            reports += asyncio.run(bot.forecast_on_tournament(target, return_exceptions=True))
+        logging.info("Run cost: $%.4f", cost.current_usage)
+    bot.log_report_summary(reports)
+
+
 def main() -> None:
-    """Runs every target; stops spending once the per-run cap is reached."""
+    """Runs once, or polls for --loop-hours (questions stay open only ~3 h)."""
     parser = argparse.ArgumentParser(description="Aleph Zero forecasting bot")
     parser.add_argument("--mode", choices=["tournament", "test"], default="tournament")
     parser.add_argument("--dry-run", action="store_true", help="forecast without publishing")
+    parser.add_argument("--loop-hours", type=float, default=0, help="keep polling this long")
+    parser.add_argument("--interval-minutes", type=float, default=10)
     args = parser.parse_args()
     bot = build_bot(publish=not args.dry_run)
     # Test mode re-forecasts questions already answered.
     bot.skip_previously_forecasted_questions = args.mode != "test"
-    reports = []
-    with MonetaryCostManager(config.MAX_COST_PER_RUN) as cost:
-        # One tournament after the other, errors are kept in the reports.
-        for target in targets(args.mode):
-            reports += asyncio.run(bot.forecast_on_tournament(target, return_exceptions=True))
-        logging.info("Run cost: $%.4f", cost.current_usage)
-    bot.log_report_summary(reports)
+    deadline = time.time() + args.loop_hours * 3600
+    # Polling loop (one pass if --loop-hours is 0); a failed pass never ends the job.
+    while True:
+        try:
+            run_once(bot, args.mode)
+        except Exception:
+            logging.exception("Pass failed, retrying at next interval")
+        if time.time() + args.interval_minutes * 60 >= deadline:
+            break
+        time.sleep(args.interval_minutes * 60)
 
 
 if __name__ == "__main__":
