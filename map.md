@@ -4,5 +4,6 @@
 - aleph_bot/bot.py : AlephBot = template bot + model rotation (median of ensemble), market anchor, signature.
 - aleph_bot/markets.py : free Manifold / Polymarket search, failure-tolerant.
 - .github/workflows/run_bot_on_tournament.yaml : now runs aleph_main.py.
+- .github/workflows/test_bot.yaml : runs aleph_main.py --mode test (bot-testing-area).
 - .github/workflows/run_bot_on_metaculus_cup.yaml : schedule disabled (credits saved).
 - Upstream: main.py (template bot, base class), bot_helpers.py, main_with_no_framework.py.
