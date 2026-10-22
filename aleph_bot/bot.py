@@ -34,6 +34,10 @@ class AlephBot(FallTemplateBot2026):
             research = f"{research}\n\n{await market_context(question.question_text)}"
         return research
 
+    def make_llm_dict(self) -> dict:
+        """Lists the whole ensemble in the comment metadata, not only the first model."""
+        return {**super().make_llm_dict(), "ensemble": config.MODELS}
+
     def _create_unified_explanation(self, *args, **kwargs) -> str:
         """Prepends the AI-transparency signature to the published comment."""
         return f"*{config.SIGNATURE}*\n\n" + super()._create_unified_explanation(*args, **kwargs)
