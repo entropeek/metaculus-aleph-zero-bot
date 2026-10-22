@@ -1,8 +1,11 @@
 """Research mixin: open-question guard, AskNews, resolution-source pages, markets and anchor."""
-from forecasting_tools import BinaryQuestion, MetaculusQuestion
+import asyncio
+
+from forecasting_tools import BinaryQuestion, MetaculusQuestion, NumericQuestion
 
 from aleph_bot import config
 from aleph_bot.anchor import judge
+from aleph_bot.baseline import baseline_text
 from aleph_bot.markets import market_search, render
 from aleph_bot.sources import source_context
 
@@ -11,6 +14,12 @@ OPEN_QUESTION_GUARD = (
     "IMPORTANT: this question is still OPEN. Assume the resolving event has NOT happened yet "
     "unless a dated source below explicitly confirms it. Check units, thresholds and dates "
     "against the resolution criteria; check the date of every figure quoted.\n\n"
+)
+# Added to numeric questions: too-narrow distributions cost 50-95% more than equally too-wide ones.
+NUMERIC_CHECKLIST = (
+    "Numeric checklist: start from the statistical baseline below if present; otherwise from the latest "
+    "value plus its typical variation over the horizon (prices: lognormal, sd of log-change ~ annual "
+    "volatility x sqrt(trading days / 252)). Keep tails wide; check units and question bounds.\n\n"
 )
 
 
@@ -25,6 +34,9 @@ class ResearchMixin:
         criteria = f"{question.resolution_criteria or ''} {question.fine_print or ''}"
         research = OPEN_QUESTION_GUARD + await super().run_research(question)
         research += "\n\n" + await source_context(criteria)
+        # Numeric questions get the checklist and, when a FRED series is linked, a random-walk baseline.
+        if isinstance(question, NumericQuestion):
+            research = NUMERIC_CHECKLIST + research + "\n\n" + await self._baseline(question, criteria)
         # Market lookup is optional and never blocks a forecast.
         if config.USE_MARKETS:
             markets = await market_search(question.question_text)
@@ -35,3 +47,10 @@ class ResearchMixin:
                 anchor = await judge(self.get_llm("parser", "llm"), question, liquid)
                 self.anchors[question.page_url] = anchor
         return research
+
+    async def _baseline(self, question: NumericQuestion, criteria: str) -> str:
+        """Random-walk quantiles for FRED series named in the question; '' when unavailable."""
+        when = question.scheduled_resolution_time or question.close_time
+        text = f"{question.question_text} {question.background_info or ''} {criteria}"
+        # Without a resolution date there is no horizon to compute.
+        return await asyncio.to_thread(baseline_text, text, when.date()) if when else ""

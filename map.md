@@ -3,7 +3,8 @@
 - aleph_bot/config.py : models, parser, researcher, cost cap, markets flag, AI signature (env-overridable).
 - aleph_bot/bot.py : AlephBot = mixins + template bot; model rotation, AI signature, build_bot().
 - aleph_bot/markets.py : free Manifold / Polymarket search (records + text), liquidity flag, failure-tolerant.
-- aleph_bot/research.py : ResearchMixin: open-question guard, AskNews, source pages, markets, judge-verified anchor.
+- aleph_bot/research.py : ResearchMixin: open-question guard, numeric checklist + FRED baseline, AskNews, source pages, markets, judge-verified anchor.
+- aleph_bot/baseline.py : numeric baseline = random walk on FRED history (empirical h-step changes, backtested).
 - aleph_bot/anchor.py : LLM judge accepting a market only for the same event/threshold/deadline.
 - aleph_bot/calibration.py : binary aggregation = logit-mean × EXTREMIZE, market blend, capped to [CAP, 1-CAP].
 - aleph_bot/prompts.py : binary prompt (time left, status quo, base rate, inside view, criteria check).

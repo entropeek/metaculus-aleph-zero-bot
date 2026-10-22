@@ -20,4 +20,5 @@ if "forecasting_tools" not in sys.modules:
         stub.MetaculusQuestion = BinaryQuestion
         stub.GeneralLlm = object
         stub.clean_indents = lambda text: textwrap.dedent(text).strip()
+        stub.NumericQuestion = type("NumericQuestion", (), {})
         sys.modules["forecasting_tools"] = stub
