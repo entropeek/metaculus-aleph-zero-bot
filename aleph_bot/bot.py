@@ -4,7 +4,9 @@ import itertools
 from forecasting_tools import GeneralLlm, MetaculusQuestion
 
 from aleph_bot import config
+from aleph_bot.calibration import CalibrationMixin
 from aleph_bot.markets import market_context
+from aleph_bot.prompts import BinaryPromptMixin
 from aleph_bot.sources import source_context
 from main import FallTemplateBot2026
 
@@ -17,8 +19,8 @@ def _llm(model: str) -> GeneralLlm:
     )
 
 
-class AlephBot(FallTemplateBot2026):
-    """Each forecast uses the next model of the ensemble; the parent takes the median."""
+class AlephBot(CalibrationMixin, BinaryPromptMixin, FallTemplateBot2026):
+    """Ensemble rotation, extra research, calibrated binary aggregation, AI signature."""
 
     _model_cycle = itertools.cycle(config.MODELS)
 

@@ -9,6 +9,9 @@ MODELS = os.getenv(
 ).split(",")
 # Reasoning effort for the ensemble (low/medium/high); "high" ~doubles the cost per question.
 REASONING_EFFORT = os.getenv("ALEPH_REASONING", "medium")
+# Binary calibration: log-odds multiplier (1 = none; literature 1.16-3.9) and probability floor/ceiling.
+EXTREMIZE = float(os.getenv("ALEPH_EXTREMIZE", "1.2"))
+CAP = float(os.getenv("ALEPH_CAP", "0.02"))
 # Cheap model that extracts the number from each model's reasoning.
 PARSER = os.getenv("ALEPH_PARSER", "openrouter/openai/gpt-6-luna")
 # Free for participants: AskNews news summaries.

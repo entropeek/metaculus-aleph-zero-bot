@@ -1,8 +1,10 @@
 # Code map (Aleph Zero additions; upstream template files unchanged)
 - aleph_main.py : entry point; tournament + MiniBench (or `--mode test`), per-pass cost cap, `--dry-run`, polling loop `--loop-hours`.
 - aleph_bot/config.py : models, parser, researcher, cost cap, markets flag, AI signature (env-overridable).
-- aleph_bot/bot.py : AlephBot = template bot + model rotation (median), source pages, market anchor, signature.
+- aleph_bot/bot.py : AlephBot = template bot + model rotation, calibrated binary aggregation, custom binary prompt, source pages, market anchor, signature.
 - aleph_bot/markets.py : free Manifold / Polymarket search, failure-tolerant.
+- aleph_bot/calibration.py : binary aggregation = logit-mean × EXTREMIZE, capped to [CAP, 1-CAP].
+- aleph_bot/prompts.py : binary prompt (time left, status quo, base rate, inside view, criteria check).
 - aleph_bot/sources.py : reads up to 2 resolution-source pages named in the criteria.
 - .github/workflows/run_bot_on_tournament.yaml : hourly cron, each job polls ~5.8 h (questions open only 3 h).
 - .github/workflows/test_bot.yaml : runs aleph_main.py --mode test (bot-testing-area).
